@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  app:
+    image: linux_tweet_app
+    build: tweet_app/
+    container_name: tweet_app
+    restart: always
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    networks:
+      - app_network
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx_proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx_proxy/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      - app
+    networks:
+      - app_network
+      ## Uncomment for production environment
+  # certbot:
+  #   image: certbot/certbot
+  #   container_name: certbot
+  #   volumes:
+  #     - /etc/letsencrypt:/etc/letsencrypt
+  #     - /var/www/html:/var/www/html
+  #   depends_on:
+  #     - reverse-proxy
+  #   entrypoint: ["certbot"]
+  #   command: ["certonly", "--webroot", "-w", "/var/www/html", "-d", "localhost", "--email", "your-email@example.com", "--agree-tos", "--non-interactive", "--force-renewal"]
+  #   networks:
+  #     - app_network
+networks:
+  app_network:
+    driver: bridge
