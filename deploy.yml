@@ -1,0 +1,72 @@
+---
+- name: Deploy Dockerized App
+  hosts: target_servers
+  become: yes
+  tasks:
+# Uncomment if running for the first time/firewall rules are not set
+#    - name: Install prerequisites
+#      apt:
+#        name:
+#          - apt-transport-https
+#          - ca-certificates
+#          - curl
+#          - software-properties-common
+#          - git
+#           - rsync
+#        state: present
+#        update_cache: yes
+
+#    - name: Add Docker GPG apt Key
+#      apt_key:
+#        url: https://download.docker.com/linux/ubuntu/gpg
+#        state: present
+
+
+#    - name: Add Docker Repository
+#      apt_repository:
+#        repo: deb https://download.docker.com/linux/ubuntu focal stable
+#        state: present
+#    - name: Install Docker and Docker Compose
+#      apt:
+#        name:
+#          - docker-ce
+#          - docker-ce-cli
+#          - containerd.io
+#          - docker-compose-plugin
+#        state: present
+#        update_cache: yes
+
+    - name: Ensure Docker service is running
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Stop app
+      command: docker compose down
+      args:
+        chdir: /opt/app
+      ignore_errors: yes
+
+    - name: Copy repository files from Ansible host
+      synchronize:
+        src: ~/app/
+        dest: /opt/app
+        recursive: yes
+        delete: yes
+         
+    - name: Set permissions for /opt/app
+      file:
+        path: /opt/app
+        owner: "{{ansible_user}}"
+        group: "{{ansible_user}}"
+        mode: '0775'
+        recurse: yes
+# comment if using domain
+    - name: Generate self-signed certificates
+      shell: /bin/bash /opt/app/certbot/local_certs.sh
+
+    - name: Start app using Docker Compose
+      command: docker compose up -d
+      args:
+        chdir: /opt/app
