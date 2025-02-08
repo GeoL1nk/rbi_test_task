@@ -31,4 +31,4 @@ jobs:
         env:
           ANSIBLE_BECOME_PASSWORD: ${{ secrets.ANSIBLE_BECOME_PASSWORD}}
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd /home/${{ secrets.SSH_USER }}/app && ANSIBLE_BECOME_PASSWORD=$ANSIBLE_BECOME_PASSWORD ansible-playbook -i hosts.ini deploy.yml --exctra-vars 'ansible_become_pass=$ANSIBLE_BECOME_PASSWORD'"
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd /home/${{ secrets.SSH_USER }}/app && ANSIBLE_BECOME_PASSWORD=$ANSIBLE_BECOME_PASSWORD ansible-playbook -i hosts.ini deploy.yml -e 'ansible_become_pass=$ANSIBLE_BECOME_PASSWORD'"
