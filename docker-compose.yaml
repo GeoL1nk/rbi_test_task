@@ -27,7 +27,7 @@ services:
       - app
     networks:
       - app_network
-      ## Uncomment for production environment
+#Commented for local environment. Uncomment for production
   # certbot:
   #   image: certbot/certbot
   #   container_name: certbot
@@ -37,7 +37,7 @@ services:
   #   depends_on:
   #     - reverse-proxy
   #   entrypoint: ["certbot"]
-  #   command: ["certonly", "--webroot", "-w", "/var/www/html", "-d", "localhost", "--email", "your-email@example.com", "--agree-tos", "--non-interactive", "--force-renewal"]
+  #   command: ["certonly", "--webroot", "-w", "/var/www/html", "-d", "$DOMAIN_NAME", "--email", "your-email@example.com", "--agree-tos", "--non-interactive", "--force-renewal"]
   #   networks:
   #     - app_network
 networks:

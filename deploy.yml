@@ -2,39 +2,43 @@
 - name: Deploy Dockerized App
   hosts: target_servers
   become: yes
+  vars:
+    domain_name: ""
+    first_time_setup: true
   tasks:
-# Uncomment if running for the first time/firewall rules are not set
-#    - name: Install prerequisites
-#      apt:
-#        name:
-#          - apt-transport-https
-#          - ca-certificates
-#          - curl
-#          - software-properties-common
-#          - git
-#           - rsync
-#        state: present
-#        update_cache: yes
+    - name: Install prerequisites
+      apt:
+        name:
+        - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - git
+          - rsync
+        state: present
+        update_cache: yes
+      when: first_time_setup | bool
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+      when: first_time_setup | bool
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+      when: first_time_setup | bool
 
-#    - name: Add Docker GPG apt Key
-#      apt_key:
-#        url: https://download.docker.com/linux/ubuntu/gpg
-#        state: present
-
-
-#    - name: Add Docker Repository
-#      apt_repository:
-#        repo: deb https://download.docker.com/linux/ubuntu focal stable
-#        state: present
-#    - name: Install Docker and Docker Compose
-#      apt:
-#        name:
-#          - docker-ce
-#          - docker-ce-cli
-#          - containerd.io
-#          - docker-compose-plugin
-#        state: present
-#        update_cache: yes
+    - name: Install Docker and Docker Compose
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: present
+        update_cache: yes
+      when: first_time_setup | bool
 
     - name: Ensure Docker service is running
       systemd:
@@ -62,9 +66,19 @@
         group: "{{ansible_user}}"
         mode: '0775'
         recurse: yes
-# comment if using domain
+
+    - name: Uncomment Certbot service in docker-compose.yml
+      replace:
+        path: /opt/app/docker-compose.yml
+        regexp: '^#(.*certbot.*)'
+        replace: '\1'
+      when: domain_name | length > 0
+      
     - name: Generate self-signed certificates
       shell: /bin/bash /opt/app/certbot/local_certs.sh
+      become: true
+      when: domain_name | length = 0
+
 
     - name: Start app using Docker Compose
       command: docker compose up -d
