@@ -2,7 +2,7 @@
 # RBI Test Task
  This repository contains a project structured with Docker Compose, designed to deploy a web application with Nginx as a reverse proxy and Certbot for SSL certificate management.
  # Deployment diagram
-![Deployment diagram](/Architecture_diagram_rbi.png)
+![Deployment diagram](/architecture_diagram.png)
 
   ## How to deploy
 
