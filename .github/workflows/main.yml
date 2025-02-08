@@ -1,10 +1,16 @@
 name: Deploy with Ansible
 
 on:
-  push:
-    branches:
-      - master  # Change this to your deployment branch
-
+  workflow_dispatch:
+    inputs:
+      domain_name:
+        description: "Enter domain name (leave empty for self-signed certs)"
+        required: false
+        default: ""
+      first_time_setup:
+        description: "Run first-time setup (install prerequisites)? (true/false)"
+        required: false
+        default: "false"
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -31,4 +37,4 @@ jobs:
         env:
           ANSIBLE_BECOME_PASSWORD: ${{ secrets.ANSIBLE_BECOME_PASSWORD}}
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd /home/${{ secrets.SSH_USER }}/app && ANSIBLE_BECOME_PASSWORD=$ANSIBLE_BECOME_PASSWORD ansible-playbook -i hosts.ini deploy.yml -e 'ansible_become_pass=$ANSIBLE_BECOME_PASSWORD'"
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd /home/${{ secrets.SSH_USER }}/app && ANSIBLE_BECOME_PASSWORD=$ANSIBLE_BECOME_PASSWORD ansible-playbook -i hosts.ini deploy.yml -e 'ansible_become_pass=$ANSIBLE_BECOME_PASSWORD domain_name=${{ github.event.inputs.domain_name }} first_time_setup=${{ github.event.inputs.first_time_setup }}'"
