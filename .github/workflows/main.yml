@@ -1,6 +1,9 @@
 name: Deploy with Ansible
 
 on:
+  push:
+    branches:
+      - master  # Trigger on push to master branch
   workflow_dispatch:
     inputs:
       domain_name:
