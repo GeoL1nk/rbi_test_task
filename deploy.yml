@@ -77,7 +77,7 @@
     - name: Generate self-signed certificates
       shell: /bin/bash /opt/app/certbot/local_certs.sh
       become: true
-      when: domain_name | length = 0
+      when: domain_name | length == 0
 
 
     - name: Start app using Docker Compose

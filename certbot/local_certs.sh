@@ -1,2 +1,2 @@
-mkdir -p conf/live/localhost
-sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048     -keyout conf/live/localhost/privkey.pem     -out conf/live/localhost/fullchain.pem     -subj "/CN=localhost"
+mkdir -p /opt/app/certbot/conf/live/localhost
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048     -keyout /opt/app/certbot/conf/live/localhost/privkey.pem     -out /opt/app/certbot/conf/live/localhost/fullchain.pem     -subj "/CN=localhost"
