@@ -1,0 +1,32 @@
+name: Deploy with Ansible
+
+on:
+  push:
+    branches:
+      - master  # Change this to your deployment branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Copy Repository to Ansible Host
+        run: |
+          rsync -avz --exclude='.git' -e "ssh -i ~/.ssh/id_rsa" ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/app/
+      - name: Update Ansible Hosts file
+        run: |
+          echo "[target-servers] > /home/${{ secrets.SSH_USER }}/app/hosts.ini"
+          echo "${{ secrets.DEPLOY_HOST }} ansible_user=ansible ansible_ssh_private_key_file=/home/ansible/target>>/home/${{ secrets.SSH_USER }}/app/hosts.ini"
+      - name: Run Ansible Playbook
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd /home/${{ secrets.SSH_USER }}/app && ansible-playbook -i hosts.ini deploy.yml"
