@@ -81,6 +81,6 @@
 
 
     - name: Start app using Docker Compose
-      command: docker compose up -d
+      command: docker compose up -d --build
       args:
         chdir: /opt/app
