@@ -67,9 +67,9 @@
         mode: '0775'
         recurse: yes
 
-    - name: Uncomment Certbot service in docker-compose.yml
+    - name: Uncomment Certbot service in docker-compose.yaml
       replace:
-        path: /opt/app/docker-compose.yml
+        path: /opt/app/docker-compose.yaml
         regexp: '^#(.*certbot.*)'
         replace: '\1'
       when: domain_name | length > 0
